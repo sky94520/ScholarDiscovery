@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <p>获取学院的学科评价</p>
+    <table border="1">
+        <tr>
+            <th>学院id</th>
+            <th>学科代码</th>
+            <th>一流学科</th>
+            <th>重点学科</th>
+            <th>评估</th>
+        </tr>
+        {% for discipline in disciplines %}
+            <tr>
+                <td>{{ discipline["institution_id"] }}</td>
+                <td>{{ discipline["discipline_code"] }}</td>
+                <td>{{ discipline["dfc"] }}</td>
+                <td>{{ discipline["nkd"] }}</td>
+                <td>{{ discipline["evaluation"] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% for discipline_id, teachers in dis_teachers.items() %}
+        <p>学科代码：{{ discipline_id }}</p>
+        <table border="1">
+        <tr>
+            <th>名称</th>
+            <th>年龄</th>
+            <th>职称</th>
+        </tr>
+        {% for teacher in teachers %}
+            <tr>
+                <td>{{ teacher["name"] }}</td>
+                <td>
+                    {% if teacher["years-old"] %}
+                        {{ teacher["years-old"] }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if teacher["academician"] %}
+                        院士
+                    {% endif %}
+                    {% if teacher["outyouth"] %}
+                        杰出青年
+                    {% endif %}
+                    {% if teacher["changjiang"] %}
+                        长江学者
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    {% endfor %}
+    </table>
+</body>
+</html>
