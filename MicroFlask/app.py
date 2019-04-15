@@ -52,12 +52,22 @@ def teacher_detail(teacher_name, teacher_id):
         json_str = rpc.school.get_papers_by_author_id(teacher_id)
 
         papers = json.loads(json_str)
-        # 获取论文的md5
+        titles = "{}"
+
+        if len(papers) != 0:
+            # 获取论文的md5
+            paper_md5_list = [paper['paper_md5'] for paper in papers]
+            # 获取作者id
+            json_str = rpc.school.get_authors_by_md5_in_papers(paper_md5_list)
+            author_id_list = json.loads(json_str)
+            # 获取各个老师对应的头衔 字符串
+            titles = rpc.school.get_title_by_id_in_teachers(author_id_list)
 
     return render_template("teacher_detail.html",
                            papers=papers,
                            teacher_id=teacher_id,
-                           teacher_name=teacher_name)
+                           teacher_name=teacher_name,
+                           titles=titles)
 
 
 if __name__ == '__main__':

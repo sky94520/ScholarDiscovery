@@ -21,7 +21,9 @@
             <td>{{ paper['name'] }}</td>
             <td>{{ paper['year'] }}</td>
             <td>{{ paper['cited_num'] }}</td>
-            <td id="authors">{{ paper['author'] }}</td>
+            <td id="authors">
+                {{ paper['author'] }}
+            </td>
         </tr>
     {% endfor %}
 </table>
@@ -31,10 +33,11 @@
     //main
     //关系图
     let self = {'id': TEACHER_ID, 'name': TEACHER_NAME};
-
+    //头衔
+    let titles = {{ titles | default({}) | safe}};
     //设置关系图
     let relationGraph = new RelationGraph(d3.select('#relation-net'));
-    let handled_data = handle_partner_relations(self);
+    let handled_data = handle_partner_relations(self, titles);
     console.log(handled_data);
     relationGraph.setData(handled_data);
 </script>

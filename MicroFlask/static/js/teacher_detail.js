@@ -32,7 +32,7 @@ function containslink(links, link) {
  * 处理老师和和做人的关系
  * @param self {id: id, name: name} 个人信息
  */
-function handle_partner_relations(self) {
+function handle_partner_relations(self, titles) {
     //每个类别所对应的颜色
     let colors = ["#ee6a50", "#4f94cd", "#daa520", "#0000ff", "#8fbc8f", "#5d478b", "#528b8b", "#483d8b", "#3a5fcd"];
     let categories = [];
@@ -40,26 +40,33 @@ function handle_partner_relations(self) {
     let nodes = [];
     let kinds = [];
 
-    categories.push({"name": self.name, "color": colors[0]});
+    let title = '未知';
+    if (self.name in titles){
+        title = titles[self.name].honors[0].title;
+    }
+    categories.push({"name": title, "color": colors[0]});
     nodes.push({"name": self.name, "category": 0});
     kinds.push(self.name);
 
     d3.selectAll("#authors").each(function (d, i, all) {
         let array = JSON.parse(all[i].innerHTML);
+        console.log(array);
 
         for (let i = 0; i < array.length; i++){
-            let org = array[i].org;
             let name = array[i].name;
-
             if (name == self.name)
                 continue;
-
-            let index = kinds.indexOf(org);
+            //获取头衔
+            title = '未知';
+            if (name in titles){
+                title = titles[name].honors[0].title;
+            }
             //插入类别
+            let index = kinds.indexOf(title);
             if (index == -1){
-                kinds.push(org);
+                kinds.push(title);
                 index = kinds.length - 1;
-                categories.push({"name": org, "color": colors[categories.length]});
+                categories.push({"name": title, "color": colors[categories.length]});
             }
             //尝试添加节点
             let nodeindex = contains(nodes, 'name', name);
