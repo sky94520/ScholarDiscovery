@@ -51,20 +51,35 @@ class School(object):
         return json.dumps(teachers, ensure_ascii=False)
 
     @rpc
-    def get_discipline_by_institution(self, institution_id):
+    def get_discipline_by_institution(self, institution_ids):
         """
         根据学校名和学院名对应的学院的学科信息
-        :param institution_id:
+        :param institution_ids: 可以是int或者数组
         :return:
         """
-
+        results = None
         sql = ("select INSTITUTION_ID as institution_id,DISCIPLINE_CODE as discipline_code,"
-               "DFC as dfc,NKD as nkd,EVALUATION as evaluation from es_relation_in_dis where INSTITUTION_ID=?")
-        results = db.select(sql, institution_id)
-        # 按照evaluation进行排序
-        results.sort(key=lambda x: School.get_score_by_evaluation(x['evaluation']), reverse=True)
+               "DFC as dfc,NKD as nkd,EVALUATION as evaluation from es_relation_in_dis where INSTITUTION_ID in (%s)")
+        if type(institution_ids) is int:
+            sql = sql % "?"
+            results = db.select(sql, institution_ids)
+        # 数组
+        else:
+            sql = sql % ','.join(['?' for name in institution_ids])
+            results = db.select(sql, *institution_ids)
 
-        return json.dumps(results, ensure_ascii=False)
+        # 按照evaluation进行排序
+        institutions = {}
+        for result in results:
+            institution_id = result.pop('institution_id')
+            if institution_id not in institutions:
+                institutions[institution_id] = []
+            institutions[institution_id].append(result)
+
+        for institution_id, disciplines in institutions.items():
+            disciplines.sort(key=lambda x: School.get_score_by_evaluation(x['evaluation']), reverse=True)
+
+        return json.dumps(institutions, ensure_ascii=False)
 
     @staticmethod
     def get_score_by_evaluation(evaluation):
