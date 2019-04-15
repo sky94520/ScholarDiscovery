@@ -107,7 +107,7 @@ class School(object):
         :return:
         """
 
-        sql = ("select * from teacher_discipline where institution_id=?")
+        sql = "select * from teacher_discipline where institution_id=?"
         results = db.select(sql, institution_id)
 
         return json.dumps(results, ensure_ascii=False)
@@ -137,7 +137,61 @@ class School(object):
         :param author_id: 老师id
         :return: 老师论文数组生成的字符串
         """
-        sql = "select name,year,cited_num,author from eds_paper_clean where author_id = ?"
+        sql = "select name,year,cited_num,author,paper_md5 from eds_paper_clean where author_id = ?"
         results = db.select(sql, author_id)
 
         return json.dumps(results, ensure_ascii=False)
+
+    @rpc
+    def get_authors_by_md5_in_papers(self, md5_list):
+        """
+        根据论文的md5值获取对应的作者id数组
+        :param md5_list: 论文的md5数组
+        :return: 作者id数组(不重复)
+        """
+        if len(md5_list) == 0:
+            return ""
+
+        sql = "select author_id from eds_paper_clean where paper_md5 in (%s)"
+        sql = sql % ','.join(['?' for name in md5_list])
+
+        results = db.select(sql, *md5_list)
+        author_id_list = set()
+        for result in results:
+            author_id_list.add(result['author_id'])
+
+        return json.dumps(list(author_id_list), ensure_ascii=False)
+
+    @rpc
+    def get_title_by_id_in_teachers(self, teacher_id_list):
+        """
+        根据老师的id数组获取该老师的头衔
+        :param teacher_id_list:
+        :return: 返回以老师名称为键，头衔数组和id为值的键值对
+        """
+        sql = ("select ID as id,NAME as name, TITLE as title,ACADEMICIAN as academician,"
+               "OUTYOUTH as outyouth,CHANGJIANG as changjiang from es_teacher where ID in (%s)"
+               " and (TITLE is not null or ACADEMICIAN is not null or OUTYOUTH is not null or CHANGJIANG is not null)")
+        sql = sql % ','.join(['?' for name in teacher_id_list])
+
+        results = db.select(sql, *teacher_id_list)
+        mapping = {}
+        for teacher in results:
+            teacher_name = teacher['name']
+            teacher_id = teacher['id']
+            # 添加荣誉
+            honors = []
+            if teacher['academician'] is not None:
+                honors.append({"title": "院士", "year": teacher['academician']})
+            if teacher['outyouth'] is not None:
+                honors.append({"title": "杰出青年", "year": teacher['outyouth']})
+            if teacher['changjiang'] is not None:
+                honors.append({"title": "长江学者", "year": teacher['changjiang']})
+            if teacher['title'] is not None:
+                honors.append({"title": teacher['title'], "year": "0"})
+
+            if len(honors) == 0:
+                continue
+            mapping[teacher_name] = {"honors": honors, "id": teacher_id}
+
+        return json.dumps(mapping, ensure_ascii=False)
