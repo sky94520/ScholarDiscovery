@@ -129,3 +129,15 @@ class School(object):
             return {}
         else:
             return results[0]
+
+    @rpc
+    def get_papers_by_author_id(self, author_id):
+        """
+        根据该老师的id获取该老师的所有论文
+        :param author_id: 老师id
+        :return: 老师论文数组生成的字符串
+        """
+        sql = "select name,year,cited_num,author from eds_paper_clean where author_id = ?"
+        results = db.select(sql, author_id)
+
+        return json.dumps(results, ensure_ascii=False)
