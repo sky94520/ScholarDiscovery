@@ -33,14 +33,14 @@ def teacher_info(school_name, institution_name):
         disciplines = json.loads(result)
         # 获取学科的id数组
         discipline_ids = []
-        for discipline in disciplines:
+        for discipline in disciplines[str(institution_id)]:
             discipline_ids.append(discipline["discipline_code"])
         # 获取学科对应的名称
         json_str = rpc.school.get_names_by_discipline_ids(discipline_ids)
         discipline_mapping = json.loads(json_str)
 
     return render_template("teachers.html",
-                           disciplines=disciplines,
+                           institutions=disciplines,
                            teachers=teachers,
                            discipline_mapping=discipline_mapping)
 

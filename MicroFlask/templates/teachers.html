@@ -15,9 +15,10 @@
             <th>重点学科</th>
             <th>评估</th>
         </tr>
-        {% for discipline in disciplines %}
+        {% for institution_id, disciplines in institutions.items() %}
+            {% for discipline in disciplines %}
             <tr>
-                <td>{{ discipline["institution_id"] }}</td>
+                <td>{{ institution_id }}</td>
                 <td>{{ discipline["discipline_code"] }}</td>
                 <td>{{ discipline_mapping[discipline["discipline_code"]] }}</td>
                 <td>
@@ -36,6 +37,7 @@
                 </td>
                 <td>{{ discipline["evaluation"] }}</td>
             </tr>
+            {% endfor %}
         {% endfor %}
     </table>
         <table border="1">
