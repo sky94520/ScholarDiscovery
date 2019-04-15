@@ -28,20 +28,6 @@ def teacher_info(school_name, institution_name):
         # 转换成字典
         teachers = json.loads(result)
 
-        # 获取学院id对应的teacher_id和学科id
-        result = rpc.school.get_teacher_ids_by_institution_id(institution_id)
-        teachers_dis_mapping = json.loads(result)
-
-        # 按学科划分老师
-        dis_teachers = {}
-        for dis in teachers_dis_mapping:
-            discipline_id = dis['discipline_id']
-            teacher_id = str(dis['teacher_id'])
-            if discipline_id not in dis_teachers:
-                dis_teachers[discipline_id] = []
-
-            if teacher_id in teachers:
-                dis_teachers[discipline_id].append(teachers[teacher_id])
         # 学校代码信息
         result = rpc.school.get_discipline_by_institution(institution_id)
         disciplines = json.loads(result)
@@ -55,8 +41,23 @@ def teacher_info(school_name, institution_name):
 
     return render_template("teachers.html",
                            disciplines=disciplines,
-                           dis_teachers=dis_teachers,
+                           teachers=teachers,
                            discipline_mapping=discipline_mapping)
+
+
+@app.route("/teacher/<teacher_name>/<int:teacher_id>")
+def teacher_detail(teacher_name, teacher_id):
+    with ClusterRpcProxy(CONFIG) as rpc:
+        # 获取该老师的所有论文
+        json_str = rpc.school.get_papers_by_author_id(teacher_id)
+
+        papers = json.loads(json_str)
+        # 获取论文的md5
+
+    return render_template("teacher_detail.html",
+                           papers=papers,
+                           teacher_id=teacher_id,
+                           teacher_name=teacher_name)
 
 
 if __name__ == '__main__':

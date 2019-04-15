@@ -38,17 +38,19 @@
             </tr>
         {% endfor %}
     </table>
-    {% for discipline_id, teachers in dis_teachers.items() %}
-        <p>学科代码：{{ discipline_id }}</p>
         <table border="1">
         <tr>
             <th>名称</th>
             <th>年龄</th>
             <th>职称</th>
         </tr>
-        {% for teacher in teachers %}
+        {% for teacher_id, teacher in teachers.items() %}
             <tr>
-                <td>{{ teacher["name"] }}</td>
+                <td>
+                    <a href="/teacher/{{ teacher['name'] }}/{{ teacher_id }}">
+                        {{ teacher["name"] }}
+                    </a>
+                </td>
                 <td>
                     {% if teacher["years-old"] %}
                         {{ teacher["years-old"] }}
@@ -67,7 +69,6 @@
                 </td>
             </tr>
         {% endfor %}
-    {% endfor %}
     </table>
 </body>
 </html>
