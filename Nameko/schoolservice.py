@@ -1,6 +1,11 @@
 """
 author: sky
-desc: get_famous_teachers_by_school 表 es_institution es_teacher
+desc:
+    get_famous_teachers_by_school 表 es_institution es_teacher
+    get_discipline_by_institution 表 es_relation_in_dis
+    get_teacher_ids_by_institution_id 表 teacher_discipline
+    get_id_by_school_name 表 es_institution
+    get_names_by_discipline_ids 表 es_discipline
 """
 from nameko.rpc import rpc
 import json
@@ -56,8 +61,43 @@ class School(object):
         sql = ("select INSTITUTION_ID as institution_id,DISCIPLINE_CODE as discipline_code,"
                "DFC as dfc,NKD as nkd,EVALUATION as evaluation from es_relation_in_dis where INSTITUTION_ID=?")
         results = db.select(sql, institution_id)
+        # 按照evaluation进行排序
+        results.sort(key=lambda x: School.get_score_by_evaluation(x['evaluation']), reverse=True)
 
         return json.dumps(results, ensure_ascii=False)
+
+    @staticmethod
+    def get_score_by_evaluation(evaluation):
+        score = 0
+        if len(evaluation) == 0:
+            return score
+        elif len(evaluation) > 0:
+            score += (ord('E') - ord(evaluation[0])) * 10
+        if len(evaluation) > 1:
+            if evaluation[1] == '+':
+                score += 1
+            elif evaluation[1] == '-':
+                score -= 1
+        return score
+
+    @rpc
+    def get_names_by_discipline_ids(self, discipline_list):
+        """
+        根据学科代码id数组获取该id对应的学科名
+        :param discipline_list: 学科代码id数组
+        :return:已经按照评分逆序完成的数组
+        """
+        # 构造sql语句
+        text = "select CODE as code,NAME as name from es_discipline where CODE in (%s)"
+        sql = text % ','.join(['?' for name in discipline_list])
+
+        results = db.select(sql, *discipline_list)
+        mapping = {}
+        # 转换成键为code，值为name的键值对
+        for result in results:
+            mapping[result['code']] = result['name']
+
+        return json.dumps(mapping, ensure_ascii=False)
 
     @rpc
     def get_teacher_ids_by_institution_id(self, institution_id):
