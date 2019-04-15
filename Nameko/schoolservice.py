@@ -29,7 +29,7 @@ class School(object):
         sql = ("select ID as teacher_id,NAME as name,BIRTHYEAR as birthyear,"
                "ACADEMICIAN as academician,OUTYOUTH as outyouth,CHANGJIANG as changjiang"
                " from es_teacher where SCHOOL_ID =? and INSTITUTION_ID = ? "
-               " and (ACADEMICIAN = 1 or OUTYOUTH = 1 or CHANGJIANG = 1)")
+               " and (ACADEMICIAN is not null or OUTYOUTH is not null or CHANGJIANG is not null)")
 
         results = db.select(sql, school_id, institution_id)
         # 转换成teacher_id为键，其余值为dict的dict
