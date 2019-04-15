@@ -1,6 +1,5 @@
 from flask import Flask
 from flask import render_template
-import time
 from nameko.standalone.rpc import ClusterRpcProxy
 import json
 
@@ -17,7 +16,6 @@ def hello_world():
 
 @app.route('/teachers/<school_name>/<institution_name>')
 def teacher_info(school_name, institution_name):
-    startTime = time.time()
     with ClusterRpcProxy(CONFIG) as rpc:
         # 学校名 => 学校ID
         info = rpc.school.get_id_by_school_name(school_name, institution_name)
@@ -44,14 +42,9 @@ def teacher_info(school_name, institution_name):
 
             if teacher_id in teachers:
                 dis_teachers[discipline_id].append(teachers[teacher_id])
-
-        print(dis_teachers)
-        print(teachers)
         # 学校信息
         result = rpc.school.get_discipline_by_institution(institution_id)
         disciplines = json.loads(result)
-
-    print(time.time() - startTime)
 
     return render_template("teachers.html",
                            disciplines=disciplines,
