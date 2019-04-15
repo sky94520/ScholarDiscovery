@@ -42,13 +42,21 @@ def teacher_info(school_name, institution_name):
 
             if teacher_id in teachers:
                 dis_teachers[discipline_id].append(teachers[teacher_id])
-        # 学校信息
+        # 学校代码信息
         result = rpc.school.get_discipline_by_institution(institution_id)
         disciplines = json.loads(result)
+        # 获取学科的id数组
+        discipline_ids = []
+        for discipline in disciplines:
+            discipline_ids.append(discipline["discipline_code"])
+        # 获取学科对应的名称
+        json_str = rpc.school.get_names_by_discipline_ids(discipline_ids)
+        discipline_mapping = json.loads(json_str)
 
     return render_template("teachers.html",
                            disciplines=disciplines,
-                           dis_teachers=dis_teachers)
+                           dis_teachers=dis_teachers,
+                           discipline_mapping=discipline_mapping)
 
 
 if __name__ == '__main__':

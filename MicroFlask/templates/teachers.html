@@ -10,6 +10,7 @@
         <tr>
             <th>学院id</th>
             <th>学科代码</th>
+            <th>学科名称</th>
             <th>一流学科</th>
             <th>重点学科</th>
             <th>评估</th>
@@ -18,8 +19,21 @@
             <tr>
                 <td>{{ discipline["institution_id"] }}</td>
                 <td>{{ discipline["discipline_code"] }}</td>
-                <td>{{ discipline["dfc"] }}</td>
-                <td>{{ discipline["nkd"] }}</td>
+                <td>{{ discipline_mapping[discipline["discipline_code"]] }}</td>
+                <td>
+                    {% if discipline["dfc"] %}
+                        是
+                    {% else %}
+                        否
+                    {% endif %}
+                </td>
+                <td>
+                    {% if discipline["nkd"] %}
+                        是
+                    {% else %}
+                        否
+                    {% endif %}
+                </td>
                 <td>{{ discipline["evaluation"] }}</td>
             </tr>
         {% endfor %}
