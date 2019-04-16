@@ -2,75 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{{ school_name }}</title>
 </head>
 <body>
-    <p>获取学院的学科评价</p>
+<h2>{{ school_name }}</h2>
+{% for institution in institutions %}
+    <a href="{{ url_for("institution_info", school_name=school_name, institution_name=institution['name']) }}">
+        <h3>{{ institution['name'] }}</h3>
+    </a>
+    <p>一流学科: {{ institution['dfc_num'] }}</p>
+    <p>重点学科: {{ institution['nkd_num'] }}</p>
+    <p>重点实验室: {{ institution['skl_num'] }}</p>
+    <p>院士: {{ institution['academician_num'] }}</p>
+    <p>长江学者: {{ institution['changjiang_num'] }}</p>
+    <p>杰出青年: {{ institution['outyouth_num'] }}</p>
+    {% if institution['id'] in disciplines %}
     <table border="1">
         <tr>
-            <th>学院id</th>
-            <th>学科代码</th>
             <th>学科名称</th>
             <th>一流学科</th>
             <th>重点学科</th>
             <th>评估</th>
         </tr>
-        {% for institution_id, disciplines in institutions.items() %}
-            {% for discipline in disciplines %}
-            <tr>
-                <td>{{ institution_id }}</td>
-                <td>{{ discipline["discipline_code"] }}</td>
-                <td>{{ discipline_mapping[discipline["discipline_code"]] }}</td>
-                <td>
-                    {% if discipline["dfc"] %}
-                        是
-                    {% else %}
-                        否
-                    {% endif %}
-                </td>
-                <td>
-                    {% if discipline["nkd"] %}
-                        是
-                    {% else %}
-                        否
-                    {% endif %}
-                </td>
-                <td>{{ discipline["evaluation"] }}</td>
-            </tr>
-            {% endfor %}
-        {% endfor %}
-    </table>
-        <table border="1">
+        {% for discipline in disciplines[institution['id']] %}
         <tr>
-            <th>名称</th>
-            <th>年龄</th>
-            <th>职称</th>
+            <td>{{ discipline_mapping[discipline['code']] }}</td>
+            <td>
+                {% if discipline['dfc'] %}
+                    是
+                {% else %}
+                    否
+                {% endif %}
+            </td>
+            <td>
+                {% if discipline['nkd'] %}
+                    是
+                {% else %}
+                    否
+                {% endif %}
+            </td>
+            <td>{{ discipline['evaluation'] }}</td>
         </tr>
-        {% for teacher_id, teacher in teachers.items() %}
-            <tr>
-                <td>
-                    <a href="/teacher/{{ teacher['name'] }}/{{ teacher_id }}">
-                        {{ teacher["name"] }}
-                    </a>
-                </td>
-                <td>
-                    {% if teacher["years-old"] %}
-                        {{ teacher["years-old"] }}
-                    {% endif %}
-                </td>
-                <td>
-                    {% if teacher["academician"] %}
-                        院士
-                    {% endif %}
-                    {% if teacher["outyouth"] %}
-                        杰出青年
-                    {% endif %}
-                    {% if teacher["changjiang"] %}
-                        长江学者
-                    {% endif %}
-                </td>
-            </tr>
         {% endfor %}
     </table>
+    {% endif %}
+{% endfor %}
 </body>
 </html>

@@ -47,6 +47,7 @@
         <th>名称</th>
         <th>年龄</th>
         <th>职称</th>
+        <th>个人主页</th>
     </tr>
     {% for teacher_id, teacher in teachers.items() %}
         <tr>
@@ -70,6 +71,9 @@
                 {% if teacher["changjiang"] %}
                     长江学者
                 {% endif %}
+            </td>
+            <td>
+                <a href="{{ teacher['homepage'] }}">个人主页</a>
             </td>
         </tr>
     {% endfor %}
