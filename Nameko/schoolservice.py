@@ -1,11 +1,19 @@
 """
 author: sky
 desc:
-    get_famous_teachers_by_school 表 es_institution es_teacher
+    get_famous_teachers_by_school 表 es_teacher
+    get_title_by_id_in_teachers 表 es_teacher
+
     get_discipline_by_institution 表 es_relation_in_dis
+
     get_teacher_ids_by_institution_id 表 teacher_discipline
+
     get_id_by_school_name 表 es_institution
+
     get_names_by_discipline_ids 表 es_discipline
+
+    get_papers_by_author_id 表 eds_paper_clean
+    get_authors_by_md5_in_papers 表 eds_paper_clean
 """
 from nameko.rpc import rpc
 import json
@@ -26,12 +34,12 @@ class School(object):
     def get_famous_teachers_by_school(self, school_id, institution_id):
         """
         根据学校名和学院名获取院士、杰出青年和长江学者
-        :param school_id:
-        :param institution_id:
-        :return:
+        :param school_id: 学校的id
+        :param institution_id: 学院的id
+        :return: 以老师id为键，其余为值的键值对
         """
 
-        sql = ("select ID as teacher_id,NAME as name,BIRTHYEAR as birthyear,"
+        sql = ("select ID as teacher_id,NAME as name,BIRTHYEAR as birthyear,HOMEPAGE as homepage,"
                "ACADEMICIAN as academician,OUTYOUTH as outyouth,CHANGJIANG as changjiang"
                " from es_teacher where SCHOOL_ID =? and INSTITUTION_ID = ? "
                " and (ACADEMICIAN is not null or OUTYOUTH is not null or CHANGJIANG is not null)")
@@ -51,22 +59,25 @@ class School(object):
         return json.dumps(teachers, ensure_ascii=False)
 
     @rpc
-    def get_discipline_by_institution(self, institution_ids):
+    def get_disciplines_by_institutions(self, institution_ids):
         """
         根据学校名和学院名对应的学院的学科信息
         :param institution_ids: 可以是int或者数组
-        :return:
+        :return:返回以学院id为键，其余数据为值的字典，或返回{}
         """
         results = None
-        sql = ("select INSTITUTION_ID as institution_id,DISCIPLINE_CODE as discipline_code,"
+        sql = ("select INSTITUTION_ID as institution_id,DISCIPLINE_CODE as code,"
                "DFC as dfc,NKD as nkd,EVALUATION as evaluation from es_relation_in_dis where INSTITUTION_ID in (%s)")
+
         if type(institution_ids) is int:
             sql = sql % "?"
             results = db.select(sql, institution_ids)
         # 数组
-        else:
+        elif len(institution_ids) != 0:
             sql = sql % ','.join(['?' for name in institution_ids])
             results = db.select(sql, *institution_ids)
+        else:
+            return "{}"
 
         # 按照evaluation进行排序
         institutions = {}
@@ -80,6 +91,29 @@ class School(object):
             disciplines.sort(key=lambda x: School.get_score_by_evaluation(x['evaluation']), reverse=True)
 
         return json.dumps(institutions, ensure_ascii=False)
+
+    @rpc
+    def get_institutions_by_school(self, school_name):
+        """
+        获取学校名对应的学院信息,目前每个学院的信息包括
+        （学院id,学院名称,一流学科数量,重点学科数,重点实验室,院士数量,杰青数,长江数）
+        :param school_name: 学校名称
+        :return: 返回学院数组，如果未找到该学院，则返回空数组,返回的数为数字
+        """
+        sql = ("select ID as id,NAME as name,DFC_NUM as dfc_num,NKD_NUM as nkd_num,"
+               "SKL_NUM as skl_num,ACADEMICIAN_NUM as academician_num,OUTSTANDING_NUM as outyouth_num,"
+               "CJSP_NUM as changjiang_num from es_institution where SCHOOL_NAME = ?")
+        results = db.select(sql, school_name)
+
+        keys = ["dfc_num", "nkd_num", "skl_num", "academician_num", "outyouth_num", "changjiang_num"]
+        # 把为None的字段转为0
+        for result in results:
+            result['id'] = str(result['id'])
+            for key in keys:
+                if result[key] is None:
+                    result[key] = 0
+
+        return json.dumps(results, ensure_ascii=False)
 
     @staticmethod
     def get_score_by_evaluation(evaluation):
@@ -103,6 +137,8 @@ class School(object):
         :return:已经按照评分逆序完成的数组
         """
         # 构造sql语句
+        if discipline_list is None or len(discipline_list) == 0:
+            return "[]"
         text = "select CODE as code,NAME as name from es_discipline where CODE in (%s)"
         sql = text % ','.join(['?' for name in discipline_list])
 
