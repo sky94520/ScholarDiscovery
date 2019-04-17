@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>国家重点实验室查询</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+{#    用来提醒错误输入的#}
+    <script type="text/javascript">
+        function checkForm(form)
+        {
+            if(form.schoolName.value=="")
+            {
+                alert("学校名不能为空!");
+                form.schoolName.focus();
+                return false;
+            }
+            if(form.institutionName.value=="")
+            {
+                alert("学院名不能为空!");
+                form.institutionName.focus();
+                return false;
+            }
+                return true;
+        }
+    </script>
+
+</head>
+<body>
+<div style="width: 300px;height: 400px;margin-left: 800px;margin-top: 30px">
+    <form   id="registerForm" method="post" autocomplete="off" onsubmit="return checkForm(this);">
+        <div class="form-group">
+            <input type="text"  class="form-control" id="schoolName" name="schoolName"  placeholder="学校名">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="institutionName" name="institutionName"  placeholder="学院名">
+        </div>
+        <div class="checkbox">
+{#            指向的是app.route(/名字)#}
+            <input  accept="left" class="btn btn-info" type="submit" onclick="javascript:this.form.action='keylabs_info'"  value="查找国家重点实验室" >
+        </div>
+    </form>
+</div>
+</body>
+</html>
