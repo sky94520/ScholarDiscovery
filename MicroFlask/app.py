@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask,request
 from flask import render_template
 from nameko.standalone.rpc import ClusterRpcProxy
 import json
@@ -49,6 +49,30 @@ def teacher_info(school_name, institution_name):
     return render_template("teachers.html",
                            disciplines=disciplines,
                            dis_teachers=dis_teachers)
+
+@app.route('/keylabs_search')
+def keylab_search():
+    return render_template("keylabs_search.html")
+
+@app.route('/keylabs_info',methods=['GET','POST'])
+def keylab_info():
+    if request.method == "POST":
+        with ClusterRpcProxy(CONFIG) as rpc:
+            school_name = request.form.get('schoolName')
+            institution_name = request.form.get('institutionName')
+            # 获取该学院的重点实验室ID
+            lab_ids =  rpc.school.get_keylab_id_by_institution(school_name,institution_name)
+            if len(lab_ids) == 0:
+                return "所查询的院系没有匹配的国家重点实验室"
+            #讲重点实验室信息存入list中
+            lab_id_list = []
+            for lab_id_dic in lab_ids:
+                lab_id_list.append(lab_id_dic['id'])
+            #获取实验室的信息
+            lab_info = {}
+            for id in lab_id_list:
+                lab_info[id] = rpc.school.get_keylab_name_by_institution(id)
+        return render_template("keylabs_info.html",lab_info = lab_info)
 
 
 if __name__ == '__main__':
