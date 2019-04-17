@@ -89,3 +89,15 @@ class School(object):
             return {}
         else:
             return results[0]
+
+    @rpc
+    def get_keylab_id_by_institution(self,school_name,institution_name):
+        sql = ("select id from main_lab where org = ? and institution = ?")
+        results = db.select(sql,school_name,institution_name)
+        return results
+
+    @rpc
+    def get_keylab_name_by_institution(self,lab_id):
+        sql  = ("select name,org as school_name,institution as institution_name from main_lab where id=?")
+        results = db.select(sql,lab_id)
+        return results[0]
