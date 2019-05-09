@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ school_name }}</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+<h2>{{ school_name }}</h2>
+{% for institution in institutions %}
+    <a href="#">
+        <h3>{{ institution['name'] }}</h3>
+    </a>
+    <table class="table table-hover" style="width: 30%">
+        <tr>
+            <th>一流学科</th>
+            <th>重点学科</th>
+            <th>重点实验室</th>
+            <th>院士</th>
+            <th>长江学者</th>
+            <th>杰出青年</th>
+        </tr>
+        <tr>
+            <td>{{ institution['dfc_num'] }}</td>
+            <td>{{ institution['nkd_num'] }}</td>
+            <td>{{ institution['skl_num'] }}</td>
+            <td>{{ institution['academician_num'] }}</td>
+            <td>{{ institution['changjiang_num'] }}</td>
+            <td>{{ institution['outyouth_num'] }}</td>
+        </tr>
+    </table>
+    <hr style="width: 30%;margin-left: 0px">
+    {% if "disciplines" in institution %}
+    <table class="table table-hover" style="width: 30%">
+        <tr>
+            <th>学科名称</th>
+            <th>一流学科</th>
+            <th>重点学科</th>
+            <th>评估</th>
+            <th>学科代码</th>
+            <th>root</th>
+        </tr>
+        {% for discipline in institution['disciplines'] %}
+        <tr>
+            <td>{{ discipline['name'] }}</td>
+            <td>
+                {% if discipline['dfc'] %}
+                    是
+                {% else %}
+                    否
+                {% endif %}
+            </td>
+            <td>
+                {% if discipline['nkd'] %}
+                    是
+                {% else %}
+                    否
+                {% endif %}
+            </td>
+            <td>{{ discipline['evaluation'] }}</td>
+            <td>{{ discipline['code'] }}</td>
+            <td>{{ discipline['root'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+{% endfor %}
+</body>
+</html>
