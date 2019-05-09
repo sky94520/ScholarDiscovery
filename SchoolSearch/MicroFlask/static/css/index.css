@@ -1,0 +1,35 @@
+.form{
+    margin: 30px auto;
+    width: 300px;
+    height: 500px;
+}
+
+.auto_hidden {
+        width:204px;
+        height: 30px;
+        font-size: 15px;
+        line-height: 30px;
+        border: 1px solid #d6eaf9;
+        position:absolute;
+        display:none;
+    }
+.auto_show {
+    width:204px;
+    height: 30px;
+    font-size: 15px;
+    line-height: 30px;
+    border: 1px solid #d6eaf9;
+    position:absolute;
+    z-index:2; /* 设置对象的层叠顺序 */
+    display:block;
+}
+.auto_onmouseover{
+    color:#ffffff;
+    background-color:highlight;
+    width:100%;
+}
+.auto_onmouseout{
+    color:#000000;
+    width:100%;
+    background-color:#ffffff;
+}
