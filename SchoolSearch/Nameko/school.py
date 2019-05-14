@@ -1,6 +1,5 @@
 from nameko.rpc import rpc
 import json
-import time
 
 import db
 from config import DB_CONFIG

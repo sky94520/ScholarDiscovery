@@ -15,6 +15,11 @@ def index():
 
 
 @app.route("/school")
+def school():
+    return render_template("school_index.html")
+
+
+@app.route("/school_info")
 def school_info():
     school_name = request.args.get("school_name")
     # 是否过滤非重点院系
@@ -34,11 +39,39 @@ def school_info():
             return "暂时没有该学校的相关信息"
 
 
+@app.route("/patent")
+def patent():
+    return render_template("patent_index.html")
+
+
+@app.route("/patent_results", methods=['POST'])
+def patent_results():
+    school_name = request.form.get("school_name")
+    teacher_list = request.form.get("teacher_list")
+    separation = request.form.get("separation")
+
+    return render_template("patent_info.html",
+                           school_name=school_name,
+                           teacher_list=teacher_list,
+                           separation=separation)
+
+
 @app.route("/api/school/<school_name>")
 def get_school_info(school_name):
     with ClusterRpcProxy(CONFIG) as rpc:
         # 获取该学校的学院信息
         json_str = rpc.school.get_institutions(school_name)
+        return json_str
+
+
+@app.route("/api/patent")
+def get_patent():
+    school_name = request.args.get("school_name")
+    teacher_list = request.args.getlist("teacher_list[]")
+
+    with ClusterRpcProxy(CONFIG) as rpc:
+        # 获取该学校的学院信息
+        json_str = rpc.patent.get_patents(school_name, teacher_list)
         return json_str
 
 
