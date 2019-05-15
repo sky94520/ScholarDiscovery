@@ -8,8 +8,9 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 </head>
 <body>
-<h2>{{ school_name }}-专利</h2>
-<table class="table table-hover" style="width: 80%" id="patent-info">
+<h2 align="center">{{ school_name }}-专利</h2>
+<div class="alert alert-info" role="alert" id="help-info"></div>
+<table class="table table-hover" id="patent-info">
     <tr>
         <th>标题</th>
         <th>作者</th>
@@ -30,14 +31,26 @@
         dataType: 'json',
         data: {school_name: school_name, "teacher_list": teacher_array},
         success: loadDataSuccess,
+        error: loadError,
     });
+    //帮助信息
+    $("#help-info").text("正在查询，请稍后...");
+
     function loadDataSuccess(json_data) {
-        console.log(json_data);
+        //console.log(json_data);
+        $("#help-info").text("共查询得到" + json_data.length + "个专利");
+
         for (let index in json_data){
             let item = json_data[index];
             let html = "<tr><td>" + item["title"] + "</td><td>" + item["author_list"] + "</td><td>" + item["date1"] + "</td></tr>";
             $("#patent-info").append(html);
         }
+    }
+    function loadError(jq, textStatus, errorThrown) {
+        console.log(jq);
+        console.log(textStatus);
+        console.log(errorThrown);
+        $("#help-info").text("查询失败");
     }
 </script>
 </html>
